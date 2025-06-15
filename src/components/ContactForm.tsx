@@ -1,0 +1,145 @@
+import React, { useState } from 'react';
+import { contactConnor } from '../services/api';
+import logger from '../utils/logger';
+
+const ContactForm: React.FC = () => {
+  const [title, setTitle] = useState('');
+  const [message, setMessage] = useState('');
+  const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Reset states
+    setError(null);
+    
+    // Validate inputs
+    if (!title.trim()) {
+      setError('Please enter a title');
+      return;
+    }
+    
+    if (!message.trim()) {
+      setError('Please enter a message');
+      return;
+    }
+    
+    if (!email.trim()) {
+      setError('Please enter your email');
+      return;
+    }
+    
+    if (!validateEmail(email)) {
+      setError('Please enter a valid email address');
+      return;
+    }
+    
+    try {
+      setIsSubmitting(true);
+      logger.info('Submitting contact form');
+      
+      await contactConnor(title, message, email);
+      
+      // Reset form on success
+      setTitle('');
+      setMessage('');
+      setEmail('');
+      setSuccess(true);
+      
+      // Hide success message after 5 seconds
+      setTimeout(() => {
+        setSuccess(false);
+      }, 5000);
+      
+    } catch (err) {
+      logger.error('Error submitting contact form', err);
+      setError('Failed to send message. Please try again later.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="w-full max-w-lg mx-auto">
+      <form onSubmit={handleSubmit} className="bg-gray-800 shadow-md rounded-lg px-8 pt-6 pb-8 mb-4">
+        {error && (
+          <div className="mb-4 p-3 bg-red-900/50 border border-red-800 text-white rounded-md">
+            {error}
+          </div>
+        )}
+        
+        {success && (
+          <div className="mb-4 p-3 bg-green-900/50 border border-green-800 text-white rounded-md">
+            Your message has been sent successfully!
+          </div>
+        )}
+        
+        <div className="mb-4">
+          <label className="block text-gray-300 text-sm font-bold mb-2" htmlFor="title">
+            Title
+          </label>
+          <input
+            id="title"
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="shadow appearance-none border rounded w-full py-2 px-3 bg-gray-700 text-white border-gray-600 leading-tight focus:outline-none focus:border-blue-500"
+            placeholder="Message Title"
+            disabled={isSubmitting}
+          />
+        </div>
+        
+        <div className="mb-4">
+          <label className="block text-gray-300 text-sm font-bold mb-2" htmlFor="email">
+            Your Email
+          </label>
+          <input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="shadow appearance-none border rounded w-full py-2 px-3 bg-gray-700 text-white border-gray-600 leading-tight focus:outline-none focus:border-blue-500"
+            placeholder="your.email@example.com"
+            disabled={isSubmitting}
+          />
+        </div>
+        
+        <div className="mb-6">
+          <label className="block text-gray-300 text-sm font-bold mb-2" htmlFor="message">
+            Message
+          </label>
+          <textarea
+            id="message"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            className="shadow appearance-none border rounded w-full py-2 px-3 bg-gray-700 text-white border-gray-600 leading-tight focus:outline-none focus:border-blue-500 h-32 resize-none"
+            placeholder="Your message here..."
+            disabled={isSubmitting}
+          />
+        </div>
+        
+        <div className="flex items-center justify-center">
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className={`bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full ${
+              isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
+          >
+            {isSubmitting ? 'Sending...' : 'Submit'}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+};
+
+export default ContactForm; 

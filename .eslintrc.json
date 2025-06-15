@@ -1,0 +1,13 @@
+{
+  "extends": [
+    "react-app",
+    "react-app/jest"
+  ],
+  "rules": {
+    "no-console": ["warn", { "allow": ["warn", "error"] }],
+    "no-unused-vars": ["warn", { "varsIgnorePattern": "^(DEBUG|INFO|WARN|ERROR)$" }],
+    "@typescript-eslint/no-unused-vars": ["warn", { "varsIgnorePattern": "^(DEBUG|INFO|WARN|ERROR)$" }],
+    "react/jsx-uses-react": "error",
+    "react/jsx-uses-vars": "error"
+  }
+} 
