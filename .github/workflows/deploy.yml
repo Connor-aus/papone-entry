@@ -1,6 +1,5 @@
 name: Deploy to AWS S3
 
-# This workflow handles deployment to AWS S3 and CloudFront with custom domain
 on:
   push:
     branches:
@@ -83,7 +82,7 @@ jobs:
           
           # Set bucket policy for public read access
           echo "Setting bucket policy for public read access..."
-          cat <<EOF > bucket-policy.json
+          cat > bucket-policy.json << 'EOL'
           {
             "Version": "2012-10-17",
             "Statement": [
@@ -96,7 +95,10 @@ jobs:
               }
             ]
           }
-EOF
+          EOL
+          
+          # Replace placeholder with actual bucket name
+          sed -i "s/\$S3_BUCKET/$S3_BUCKET/g" bucket-policy.json
           aws s3api put-bucket-policy --bucket $S3_BUCKET --policy file://bucket-policy.json
           
           # Get website URL
@@ -170,7 +172,9 @@ EOF
             fi
           else
             echo "Creating new CloudFront distribution with custom domain..."
-            cat <<EOF > dist-config.json
+            CERT_ARN="${{ steps.certificate.outputs.CERTIFICATE_ARN }}"
+            
+            cat > dist-config.json << EOL
             {
               "CallerReference": "react-spa-$(date +%s)",
               "Comment": "React SPA Distribution for $DOMAIN_NAME",
@@ -219,7 +223,7 @@ EOF
                 "MaxTTL": 31536000
               },
               "ViewerCertificate": {
-                "ACMCertificateArn": "${{ steps.certificate.outputs.CERTIFICATE_ARN }}",
+                "ACMCertificateArn": "$CERT_ARN",
                 "SSLSupportMethod": "sni-only",
                 "MinimumProtocolVersion": "TLSv1.2_2021"
               },
@@ -236,7 +240,8 @@ EOF
                 ]
               }
             }
-EOF
+            EOL
+            
             CF_DIST_ID=$(aws cloudfront create-distribution --distribution-config file://dist-config.json \
               --query "Distribution.Id" --output text)
             echo "Created CloudFront distribution: $CF_DIST_ID"
