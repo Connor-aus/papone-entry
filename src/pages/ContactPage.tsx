@@ -4,11 +4,12 @@ import ContactForm from '../components/ContactForm';
 
 const ContactPage: React.FC = () => {
   return (
-    <div className="min-h-screen bg-black py-12 px-4">
+    <div className="min-h-screen bg-[#202123] py-12 px-4">
       <div className="container mx-auto max-w-3xl">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white mb-4">Contact Connor</h1>
-          <p className="text-gray-300 mb-6">
+        <div className="flex flex-col items-center justify-center text-center text-gray-400 mb-8">
+          <h2 className="text-2xl font-medium mb-2">Welcome</h2>
+          <p className="mb-4">Do you have a question about Connor?</p>
+          <p className="text-sm">
             Ask{' '}
             <Link 
               to="/" 

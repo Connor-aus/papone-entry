@@ -19,7 +19,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isUser, timestamp })
         className={`max-w-[80%] rounded-lg px-4 py-2 ${
           isUser 
             ? 'bg-gray-700 text-white' 
-            : 'bg-gray-800 text-white'
+            : 'bg-[#202123] text-white'
         }`}
       >
         <div className="flex justify-between items-center mb-1">
@@ -28,7 +28,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isUser, timestamp })
           </span>
           <span className="text-xs text-gray-400 ml-2">{formattedTime}</span>
         </div>
-        <p className="text-sm whitespace-pre-wrap">{message}</p>
+        <p className="text-sm whitespace-pre-wrap break-words break-all">{message}</p>
       </div>
     </div>
   );

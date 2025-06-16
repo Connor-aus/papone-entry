@@ -68,8 +68,8 @@ const ContactForm: React.FC = () => {
   };
 
   return (
-    <div className="w-full max-w-lg mx-auto">
-      <form onSubmit={handleSubmit} className="bg-gray-800 shadow-md rounded-lg px-8 pt-6 pb-8 mb-4">
+    <div className="w-full max-w-3xl mx-auto">
+      <form onSubmit={handleSubmit} className="bg-[#202123] rounded-lg px-8 pt-6 pb-8 mb-4">
         {error && (
           <div className="mb-4 p-3 bg-red-900/50 border border-red-800 text-white rounded-md">
             {error}
@@ -91,7 +91,7 @@ const ContactForm: React.FC = () => {
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="shadow appearance-none border rounded w-full py-2 px-3 bg-gray-700 text-white border-gray-600 leading-tight focus:outline-none focus:border-blue-500"
+            className="appearance-none rounded w-full py-2 px-3 bg-[#2a2b32] text-white leading-tight focus:outline-none focus:ring-1 focus:ring-blue-500"
             placeholder="Message Title"
             disabled={isSubmitting}
           />
@@ -106,7 +106,7 @@ const ContactForm: React.FC = () => {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="shadow appearance-none border rounded w-full py-2 px-3 bg-gray-700 text-white border-gray-600 leading-tight focus:outline-none focus:border-blue-500"
+            className="appearance-none rounded w-full py-2 px-3 bg-[#2a2b32] text-white leading-tight focus:outline-none focus:ring-1 focus:ring-blue-500"
             placeholder="your.email@example.com"
             disabled={isSubmitting}
           />
@@ -120,22 +120,26 @@ const ContactForm: React.FC = () => {
             id="message"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            className="shadow appearance-none border rounded w-full py-2 px-3 bg-gray-700 text-white border-gray-600 leading-tight focus:outline-none focus:border-blue-500 h-32 resize-none"
+            className="appearance-none rounded w-full py-2 px-3 bg-[#2a2b32] text-white leading-tight focus:outline-none focus:ring-1 focus:ring-blue-500 h-48 resize-none"
             placeholder="Your message here..."
             disabled={isSubmitting}
           />
         </div>
         
-        <div className="flex items-center justify-center">
+        <div className="flex items-center justify-center mb-4">
           <button
             type="submit"
             disabled={isSubmitting}
-            className={`bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full ${
+            className={`bg-[#2a2b32] hover:bg-[#40414f] text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full ${
               isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >
             {isSubmitting ? 'Sending...' : 'Submit'}
           </button>
+        </div>
+        
+        <div className="text-center text-gray-400 text-xs">
+          This message will be sent to Connor only. We do NOT store or share your details.
         </div>
       </form>
     </div>
