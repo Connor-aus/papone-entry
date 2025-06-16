@@ -63,7 +63,7 @@ jobs:
             echo "Creating S3 bucket: $S3_BUCKET"
             
             # Create the bucket
-            if [[ "$AWS_REGION" == "us-east-1" ]]; then
+            if [[ "$AWS_REGION" == "ap-southeast-2" ]]; then
               aws s3api create-bucket --bucket $S3_BUCKET --region $AWS_REGION
             else
               aws s3api create-bucket --bucket $S3_BUCKET --region $AWS_REGION --create-bucket-configuration LocationConstraint=$AWS_REGION
@@ -114,13 +114,13 @@ jobs:
         id: certificate
         run: |
           # Check if certificate exists for the domain
-          CERT_ARN=$(aws acm list-certificates --region us-east-1 \
+          CERT_ARN=$(aws acm list-certificates --region ap-southeast-2\
             --query "CertificateSummaryList[?DomainName=='$DOMAIN_NAME'].CertificateArn" \
             --output text)
           
           if [ -z "$CERT_ARN" ]; then
             echo "Requesting new certificate for $DOMAIN_NAME..."
-            CERT_ARN=$(aws acm request-certificate --region us-east-1 \
+            CERT_ARN=$(aws acm request-certificate --region ap-southeast-2 \
               --domain-name "$DOMAIN_NAME" \
               --validation-method DNS \
               --query "CertificateArn" \
