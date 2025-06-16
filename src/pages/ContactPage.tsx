@@ -8,7 +8,7 @@ const ContactPage: React.FC = () => {
       <div className="container mx-auto max-w-3xl">
         <div className="flex flex-col items-center justify-center text-center text-gray-400 mb-8">
           <h2 className="text-2xl font-medium mb-2">Welcome</h2>
-          <p className="mb-4">Do you have a question about Connor?</p>
+          <p className="mb-4">Want to send Connor a message?</p>
           <p className="text-sm">
             Ask{' '}
             <Link 
