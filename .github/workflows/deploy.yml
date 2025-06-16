@@ -1,5 +1,6 @@
 name: Deploy to AWS S3
 
+# This workflow handles deployment to AWS S3 and CloudFront with custom domain
 on:
   push:
     branches:
