@@ -5,44 +5,262 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - prod
+
+env:
+  S3_BUCKET: ${{ secrets.S3_BUCKET || format('{0}-spa', github.repository_owner) }}
+  REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
+  AWS_REGION: ${{ secrets.AWS_REGION || 'ap-southeast-2' }}
+  DOMAIN_NAME: ${{ secrets.DOMAIN_NAME || 'whoisconnor.net' }}
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    
+    environment: ${{ github.event.inputs.environment || 'prod' }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        
+
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
           cache: 'npm'
-          
+
       - name: Install dependencies
         run: npm ci
-        
+
       - name: Run tests
         run: npm test -- --watchAll=false
-        
+
       - name: Build
         run: npm run build
         env:
-          REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
-          
+          REACT_APP_API_URL: ${{ env.REACT_APP_API_URL }}
+          NODE_ENV: ${{ github.event.inputs.environment || 'production' }}
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Create and configure S3 bucket if needed
+        id: s3_bucket
+        run: |
+          # Check if bucket exists
+          if ! aws s3api head-bucket --bucket $S3_BUCKET 2>/dev/null; then
+            echo "Creating S3 bucket: $S3_BUCKET"
+            
+            # Create the bucket
+            if [[ "$AWS_REGION" == "us-east-1" ]]; then
+              aws s3api create-bucket --bucket $S3_BUCKET --region $AWS_REGION
+            else
+              aws s3api create-bucket --bucket $S3_BUCKET --region $AWS_REGION --create-bucket-configuration LocationConstraint=$AWS_REGION
+            fi
+            
+            # Wait for bucket to be available
+            echo "Waiting for bucket to be available..."
+            sleep 5
+          else
+            echo "S3 bucket already exists: $S3_BUCKET"
+          fi
           
-      - name: Deploy to S3
-        run: aws s3 sync build/ s3://${{ secrets.S3_BUCKET }} --delete
-        
+          # Configure bucket for static website hosting
+          echo "Configuring bucket for static website hosting..."
+          aws s3 website s3://$S3_BUCKET --index-document index.html --error-document index.html
+          
+          # Set bucket policy for public read access
+          echo "Setting bucket policy for public read access..."
+          cat <<EOF > bucket-policy.json
+          {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Sid": "PublicReadGetObject",
+                "Effect": "Allow",
+                "Principal": "*",
+                "Action": "s3:GetObject",
+                "Resource": "arn:aws:s3:::$S3_BUCKET/*"
+              }
+            ]
+          }
+EOF
+          aws s3api put-bucket-policy --bucket $S3_BUCKET --policy file://bucket-policy.json
+          
+          # Get website URL
+          WEBSITE_URL="http://$S3_BUCKET.s3-website-$AWS_REGION.amazonaws.com"
+          echo "S3 website URL: $WEBSITE_URL"
+          echo "S3_WEBSITE_URL=$WEBSITE_URL" >> $GITHUB_OUTPUT
+
+      - name: Sync build to S3
+        run: |
+          aws s3 sync build/ s3://$S3_BUCKET --delete
+
+      - name: Request or validate SSL certificate
+        id: certificate
+        run: |
+          # Check if certificate exists for the domain
+          CERT_ARN=$(aws acm list-certificates --region us-east-1 \
+            --query "CertificateSummaryList[?DomainName=='$DOMAIN_NAME'].CertificateArn" \
+            --output text)
+          
+          if [ -z "$CERT_ARN" ]; then
+            echo "Requesting new certificate for $DOMAIN_NAME..."
+            CERT_ARN=$(aws acm request-certificate --region us-east-1 \
+              --domain-name "$DOMAIN_NAME" \
+              --validation-method DNS \
+              --query "CertificateArn" \
+              --output text)
+            
+            echo "⚠️ IMPORTANT: You need to create DNS validation records to validate your certificate."
+            echo "Check the AWS Certificate Manager console for the required DNS records."
+          else
+            echo "Found existing certificate for $DOMAIN_NAME: $CERT_ARN"
+          fi
+          
+          echo "CERTIFICATE_ARN=$CERT_ARN" >> $GITHUB_OUTPUT
+
+      - name: Find or create CloudFront distribution
+        id: cloudfront
+        run: |
+          set -e
+          ORIGIN_DOMAIN="$S3_BUCKET.s3-website-${AWS_REGION}.amazonaws.com"
+          CF_DIST_ID=$(aws cloudfront list-distributions \
+            --query "DistributionList.Items[?Origins.Items[0].DomainName=='$ORIGIN_DOMAIN'].Id" \
+            --output text)
+
+          if [ -n "$CF_DIST_ID" ]; then
+            echo "Found existing CloudFront distribution: $CF_DIST_ID"
+            echo "CLOUDFRONT_ID=$CF_DIST_ID" >> $GITHUB_OUTPUT
+            
+            # Update the distribution with the custom domain if needed
+            ALIASES=$(aws cloudfront get-distribution --id $CF_DIST_ID \
+              --query "Distribution.DistributionConfig.Aliases.Items" \
+              --output text)
+            
+            if [[ "$ALIASES" != *"$DOMAIN_NAME"* ]]; then
+              echo "Updating CloudFront distribution with custom domain..."
+              aws cloudfront get-distribution-config --id $CF_DIST_ID > dist-config-current.json
+              ETAG=$(jq -r '.ETag' dist-config-current.json)
+              jq '.DistributionConfig' dist-config-current.json > dist-config-update.json
+              
+              # Update the configuration with custom domain and certificate
+              jq --arg domain "$DOMAIN_NAME" --arg cert "${{ steps.certificate.outputs.CERTIFICATE_ARN }}" \
+                '.Aliases.Quantity = 1 | .Aliases.Items = [$domain] | .ViewerCertificate = {
+                  "ACMCertificateArn": $cert,
+                  "SSLSupportMethod": "sni-only",
+                  "MinimumProtocolVersion": "TLSv1.2_2021"
+                }' dist-config-update.json > dist-config-final.json
+              
+              aws cloudfront update-distribution --id $CF_DIST_ID \
+                --distribution-config file://dist-config-final.json \
+                --if-match "$ETAG"
+            fi
+          else
+            echo "Creating new CloudFront distribution with custom domain..."
+            cat <<EOF > dist-config.json
+            {
+              "CallerReference": "react-spa-$(date +%s)",
+              "Comment": "React SPA Distribution for $DOMAIN_NAME",
+              "Enabled": true,
+              "Aliases": {
+                "Quantity": 1,
+                "Items": ["$DOMAIN_NAME"]
+              },
+              "Origins": {
+                "Quantity": 1,
+                "Items": [{
+                  "Id": "S3Origin",
+                  "DomainName": "$ORIGIN_DOMAIN",
+                  "CustomOriginConfig": {
+                    "HTTPPort": 80,
+                    "HTTPSPort": 443,
+                    "OriginProtocolPolicy": "http-only",
+                    "OriginSslProtocols": {
+                      "Quantity": 1,
+                      "Items": ["TLSv1.2"]
+                    },
+                    "OriginReadTimeout": 30,
+                    "OriginKeepaliveTimeout": 5
+                  }
+                }]
+              },
+              "DefaultCacheBehavior": {
+                "TargetOriginId": "S3Origin",
+                "ViewerProtocolPolicy": "redirect-to-https",
+                "AllowedMethods": {
+                  "Quantity": 2,
+                  "Items": ["GET", "HEAD"],
+                  "CachedMethods": {
+                    "Quantity": 2,
+                    "Items": ["GET", "HEAD"]
+                  }
+                },
+                "Compress": true,
+                "ForwardedValues": {
+                  "QueryString": false,
+                  "Cookies": { "Forward": "none" },
+                  "Headers": { "Quantity": 0 }
+                },
+                "DefaultTTL": 86400,
+                "MinTTL": 0,
+                "MaxTTL": 31536000
+              },
+              "ViewerCertificate": {
+                "ACMCertificateArn": "${{ steps.certificate.outputs.CERTIFICATE_ARN }}",
+                "SSLSupportMethod": "sni-only",
+                "MinimumProtocolVersion": "TLSv1.2_2021"
+              },
+              "DefaultRootObject": "index.html",
+              "CustomErrorResponses": {
+                "Quantity": 1,
+                "Items": [
+                  {
+                    "ErrorCode": 404,
+                    "ResponsePagePath": "/index.html",
+                    "ResponseCode": "200",
+                    "ErrorCachingMinTTL": 300
+                  }
+                ]
+              }
+            }
+EOF
+            CF_DIST_ID=$(aws cloudfront create-distribution --distribution-config file://dist-config.json \
+              --query "Distribution.Id" --output text)
+            echo "Created CloudFront distribution: $CF_DIST_ID"
+            echo "CLOUDFRONT_ID=$CF_DIST_ID" >> $GITHUB_OUTPUT
+          fi
+
       - name: Invalidate CloudFront cache
         run: |
-          if [[ -n "${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}" ]]; then
-            aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
-          fi 
+          if [[ -n "${{ steps.cloudfront.outputs.CLOUDFRONT_ID }}" ]]; then
+            aws cloudfront create-invalidation \
+              --distribution-id ${{ steps.cloudfront.outputs.CLOUDFRONT_ID }} \
+              --paths "/*"
+          fi
+
+      - name: Output DNS information
+        run: |
+          echo "============================================================"
+          echo "🌐 Deployment Complete! DNS Setup Instructions:"
+          echo "============================================================"
+          echo "1. Create a CNAME record in Route 53 or your DNS provider:"
+          echo "   - Name: $DOMAIN_NAME"
+          echo "   - Value: ${{ steps.cloudfront.outputs.CLOUDFRONT_ID }}.cloudfront.net"
+          echo "2. If you requested a new SSL certificate, validate it by adding the required DNS records"
+          echo "   Check the AWS Certificate Manager console for validation details"
+          echo "============================================================"
+          echo "🚀 Your site will be available at: https://$DOMAIN_NAME"
+          echo "   S3 website URL (for testing): ${{ steps.s3_bucket.outputs.S3_WEBSITE_URL }}"
+          echo "============================================================"
