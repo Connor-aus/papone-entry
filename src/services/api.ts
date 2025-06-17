@@ -3,6 +3,7 @@ import logger from '../utils/logger';
 
 // Define API base URL - replace with your actual API endpoint
 const API_BASE_URL = process.env.REACT_APP_API_URL || '';
+console.log('API_BASE_URL', API_BASE_URL);
 
 // Create axios instance with common configuration
 const apiClient = axios.create({
@@ -50,7 +51,9 @@ export const sendRequestToAgent = async (message: string) => {
 // Send contact form
 export const contactConnor = async (title: string, message: string, email: string) => {
   try {
+    logger.info('Sending request to Connor: ' + apiClient.getUri());
     const response = await apiClient.post('/contact', { title, message, email });
+    logger.info('Response from Connor: ' + response);
     return response.data;
   } catch (error) {
     logger.error('Error sending contact form:', error);
