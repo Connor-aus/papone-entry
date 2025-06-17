@@ -116,10 +116,12 @@ if (-not $cfDistId -or $cfDistId -eq "" -or $cfDistId -eq "None") {
 }
 
 # 5. Apply bucket policy to allow CloudFront access only
+$cfDistArn = "arn:aws:cloudfront::${accountId}:distribution/$cfDistId"
 $policyTemplate = Get-Content "infra/bucket-policy.json" -Raw
+arn:aws:cloudfront::$accountId:distribution/$cfDistId
 $policy = $policyTemplate `
     -replace '__BUCKET_NAME__', $bucket `
-    -replace '__CLOUDFRONT_DIST_ARN__', $certArn
+    -replace '__CLOUDFRONT_DIST_ARN__', $cfDistArn
 
 $policyPath = "infra/bucket-policy-applied.json"
 Set-Content -Path $policyPath -Value $policy -Encoding utf8NoBOM
