@@ -97,4 +97,6 @@ npm test
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is provided for public viewing and inspiration only. All rights are reserved by Connor McSweeney. No part of this repository may be copied, modified, or redistributed without explicit written permission.
+
+© Connor McSweeney 2025. All rights reserved.
