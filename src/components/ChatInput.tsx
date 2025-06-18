@@ -6,11 +6,40 @@ interface ChatInputProps {
   isLoading: boolean;
 }
 
+const JOB_DESCRIPTION = `
+To apply to this role, you will need to be proficient in either Python and/or JavaScript.
+Your role will require proficiency in at least one programming language/framework (JavaScript, TypeScript, Python, C, C#, React).
+
+Responsibilities:
+Come up with diverse problems and solutions for a coding chatbot
+Write high-quality answers and code snippets
+Evaluate code quality produced by AI models for correctness and performance
+
+Qualifications:
+Fluency in English (native or bilingual level)
+Proficient in either Python and/or JavaScript
+Excellent writing and grammar skills
+A bachelor's degree (completed or in progress)
+Previous experience as a Software Developer, Coder, Software Engineer, or Programmer
+`;
+
+const HELLO_MESSAGE = `
+Hi, what can you help me with?
+`;
+
+const EXPERIENCE_MESSAGE = `
+Does Connor have experience working with AWS?
+`;
+
+const CONTACT_MESSAGE = `
+Can you let connor know that I would like him to contact me at example@example.com?
+`;
+
 const HELP_OPTIONS = [
-  { id: 'hi', text: 'Hi' },
-  { id: 'job', text: 'Job' },
-  { id: 'experience', text: 'Experience' },
-  { id: 'contact', text: 'Contact Connor' },
+  { id: 'contact', text: CONTACT_MESSAGE },
+  { id: 'experience', text: EXPERIENCE_MESSAGE },
+  { id: 'hi', text: HELLO_MESSAGE },
+  { id: 'job', text: JOB_DESCRIPTION },
 ];
 
 const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
