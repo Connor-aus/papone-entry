@@ -6,8 +6,7 @@ interface ChatInputProps {
   isLoading: boolean;
 }
 
-const JOB_DESCRIPTION = `
-To apply to this role, you will need to be proficient in either Python and/or JavaScript.
+const JOB_DESCRIPTION = `To apply to this role, you will need to be proficient in either Python and/or JavaScript.
 Your role will require proficiency in at least one programming language/framework (JavaScript, TypeScript, Python, C, C#, React).
 
 Responsibilities:
@@ -20,25 +19,18 @@ Fluency in English (native or bilingual level)
 Proficient in either Python and/or JavaScript
 Excellent writing and grammar skills
 A bachelor's degree (completed or in progress)
-Previous experience as a Software Developer, Coder, Software Engineer, or Programmer
-`;
+Previous experience as a Software Developer, Coder, Software Engineer, or Programmer`;
 
-const HELLO_MESSAGE = `
-Hi, what can you help me with?
-`;
+const HELLO_MESSAGE = `Hi, what can you help me with?`;
 
-const EXPERIENCE_MESSAGE = `
-Does Connor have experience working with AWS?
-`;
+const EXPERIENCE_MESSAGE = `Does Connor have experience working with AWS?`;
 
-const CONTACT_MESSAGE = `
-Can you let Connor know that I would like him to contact me at example@example.com?
-`;
+const CONTACT_MESSAGE = `Can you let Connor know that I would like him to contact me at example@example.com?`;
 
 const HELP_OPTIONS = [
+  { id: 'hi', filler: 'Say hi', text: HELLO_MESSAGE },
   { id: 'contact', filler: 'Contact Connor', text: CONTACT_MESSAGE },
   { id: 'experience', filler: 'Experience question', text: EXPERIENCE_MESSAGE },
-  { id: 'hi', filler: 'Say hi', text: HELLO_MESSAGE },
   { id: 'job', filler: 'Job description', text: JOB_DESCRIPTION },
 ];
 

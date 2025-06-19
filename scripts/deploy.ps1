@@ -1,11 +1,4 @@
 # Load env vars from .env
-$envVars = Get-Content .env | ForEach-Object {
-    if ($_ -match '^\s*([^#][^=]+)=(.*)$') {
-        $name, $value = $matches[1].Trim(), $matches[2].Trim()
-        [System.Environment]::SetEnvironmentVariable($name, $value)
-    }
-}
-
 $bucket = $env:S3_BUCKET_NAME
 $region = $env:AWS_REGION_DEPLOYMENT
 $domainName = $env:DOMAIN_NAME

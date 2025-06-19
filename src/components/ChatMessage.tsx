@@ -28,7 +28,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isUser, timestamp })
           </span>
           <span className="text-xs text-gray-400 ml-2">{formattedTime}</span>
         </div>
-        <p className="text-sm whitespace-pre-wrap break-words break-all">{message}</p>
+        <p className="text-sm whitespace-pre-wrap break-words overflow-hidden">{message}</p>
       </div>
     </div>
   );
