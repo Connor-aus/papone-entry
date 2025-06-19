@@ -3,7 +3,7 @@ import { contactConnor } from '../services/api';
 import logger from '../utils/logger';
 
 const ContactForm: React.FC = () => {
-  const [title, setTitle] = useState('');
+  const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -22,8 +22,8 @@ const ContactForm: React.FC = () => {
     setError(null);
     
     // Validate inputs
-    if (!title.trim()) {
-      setError('Please enter a title');
+    if (!subject.trim()) {
+      setError('Please enter a subject');
       return;
     }
     
@@ -46,10 +46,10 @@ const ContactForm: React.FC = () => {
       setIsSubmitting(true);
       logger.info('Submitting contact form');
       
-      await contactConnor(title, message, email);
+      await contactConnor(subject, message, email);
       
       // Reset form on success
-      setTitle('');
+      setSubject('');
       setMessage('');
       setEmail('');
       setSuccess(true);
@@ -83,16 +83,16 @@ const ContactForm: React.FC = () => {
         )}
         
         <div className="mb-4">
-          <label className="block text-gray-300 text-sm font-bold mb-2" htmlFor="title">
-            Title
+          <label className="block text-gray-300 text-sm font-bold mb-2" htmlFor="subject">
+            Subject
           </label>
           <input
-            id="title"
+            id="subject"
             type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            value={subject}
+            onChange={(e) => setSubject(e.target.value)}
             className="appearance-none rounded w-full py-2 px-3 bg-[#2a2b32] text-white leading-tight focus:outline-none focus:ring-1 focus:ring-blue-500"
-            placeholder="Message Title"
+            placeholder="Message Subject"
             disabled={isSubmitting}
           />
         </div>

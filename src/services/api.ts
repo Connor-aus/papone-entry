@@ -23,7 +23,7 @@ apiClient.interceptors.request.use(
     return config;
   },
   (error) => {
-    logger.error('API Request Error:', error);
+    logger.error('API Request Error: ', error);
     return Promise.reject(error);
   }
 );
@@ -35,7 +35,7 @@ apiClient.interceptors.response.use(
     return response;
   },
   (error) => {
-    logger.error('API Response Error:', error.response?.data || error.message);
+    logger.error('API Response Error: ', error.response?.data || error.message);
     return Promise.reject(error);
   }
 );
@@ -46,20 +46,20 @@ export const sendRequestToAgent = async (message: string) => {
     const response = await apiClient.post('/agent', { message });
     return response.data;
   } catch (error) {
-    logger.error('Error sending request to agent:', error);
+    logger.error('Error sending request to agent: ', error);
     throw error;
   }
 };
 
 // Send contact form
-export const contactConnor = async (title: string, message: string, email: string) => {
+export const contactConnor = async (subject: string, message: string, email: string) => {
   try {
     logger.info('Sending request to Connor: ' + apiClient.getUri());
-    const response = await apiClient.post('/contact', { title, message, email });
+    const response = await apiClient.post('/contact', { subject, message, email });
     logger.info('Response from Connor: ' + response);
     return response.data;
   } catch (error) {
-    logger.error('Error sending contact form:', error);
+    logger.error('Error sending contact form: ', error);
     throw error;
   }
 };
