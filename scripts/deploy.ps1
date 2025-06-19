@@ -127,7 +127,21 @@ Set-Content -Path $policyPath -Value $policy -Encoding utf8NoBOM
 
 aws s3api put-bucket-policy --bucket $bucket --policy file://$policyPath
 
-# 6. Output helpful info
+# 6. Invalidate CloudFront Cache
+Write-Host "Creating CloudFront invalidation for /*..."
+$invalidationId = aws cloudfront create-invalidation `
+  --distribution-id $cfDistId `
+  --paths "/*" `
+  --query "Invalidation.Id" `
+  --output text
+
+if (-not $invalidationId -or $invalidationId -eq "" -or $invalidationId -eq "None") {
+    Write-Host "❌ CloudFront invalidation failed."
+} else {
+    Write-Host "✅ CloudFront invalidation started: $invalidationId"
+}
+
+# 7. Output helpful info
 Write-Host "`nDeployment complete. Your site will be available via CloudFront once DNS is updated."
 Write-Host "CloudFront distribution ID: $cfDistId"
 Write-Host "Visit: https://$domainName"
