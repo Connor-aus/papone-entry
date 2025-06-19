@@ -55,7 +55,7 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
       // Add assistant response to chat
       const assistantMessage: Message = {
         id: `assistant-${Date.now()}`,
-        text: response.message || 'Sorry, I couldn\'t process that request.',
+        text: response.response || 'Sorry, I couldn\'t process that request.',
         isUser: false,
         timestamp: new Date(),
       };

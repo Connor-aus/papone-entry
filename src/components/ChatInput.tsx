@@ -32,14 +32,14 @@ Does Connor have experience working with AWS?
 `;
 
 const CONTACT_MESSAGE = `
-Can you let connor know that I would like him to contact me at example@example.com?
+Can you let Connor know that I would like him to contact me at example@example.com?
 `;
 
 const HELP_OPTIONS = [
-  { id: 'contact', text: CONTACT_MESSAGE },
-  { id: 'experience', text: EXPERIENCE_MESSAGE },
-  { id: 'hi', text: HELLO_MESSAGE },
-  { id: 'job', text: JOB_DESCRIPTION },
+  { id: 'contact', filler: 'Contact Connor', text: CONTACT_MESSAGE },
+  { id: 'experience', filler: 'Experience question', text: EXPERIENCE_MESSAGE },
+  { id: 'hi', filler: 'Say hi', text: HELLO_MESSAGE },
+  { id: 'job', filler: 'Job description', text: JOB_DESCRIPTION },
 ];
 
 const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
@@ -158,7 +158,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
                       onClick={() => selectHelpOption(option.text)}
                       className="w-full text-left px-4 py-2 text-white hover:bg-gray-700 focus:outline-none"
                     >
-                      {option.text}
+                      {option.filler}
                     </button>
                   ))}
                 </div>
