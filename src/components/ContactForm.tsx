@@ -69,7 +69,7 @@ const ContactForm: React.FC = () => {
 
   return (
     <div className="w-full max-w-3xl mx-auto">
-      <form onSubmit={handleSubmit} className="bg-[#202123] rounded-lg px-8 pt-6 pb-8 mb-4">
+      <form onSubmit={handleSubmit} className="bg-[#202123] rounded-lg px-8 pt-6 pb-6">
         {error && (
           <div className="mb-4 p-3 bg-red-900/50 border border-red-800 text-white rounded-md">
             {error}
@@ -120,7 +120,7 @@ const ContactForm: React.FC = () => {
             id="message"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            className="appearance-none rounded w-full py-2 px-3 bg-[#2a2b32] text-white leading-tight focus:outline-none focus:ring-1 focus:ring-blue-500 h-48 resize-none"
+            className="appearance-none rounded w-full py-2 px-3 bg-[#2a2b32] text-white leading-tight focus:outline-none focus:ring-1 focus:ring-blue-500 h-36 resize-none"
             placeholder="Your message here..."
             disabled={isSubmitting}
           />

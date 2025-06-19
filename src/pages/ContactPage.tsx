@@ -4,9 +4,9 @@ import ContactForm from '../components/ContactForm';
 
 const ContactPage: React.FC = () => {
   return (
-    <div className="min-h-screen bg-[#202123] py-12 px-4">
+    <div className="h-full overflow-y-auto bg-[#202123] py-8 px-4">
       <div className="container mx-auto max-w-3xl">
-        <div className="flex flex-col items-center justify-center text-center text-gray-400 mb-8">
+        <div className="flex flex-col items-center justify-center text-center text-gray-400 mb-6">
           <p className="mb-4">Want to send Connor a message?</p>
           <p className="text-sm">
             Ask{' '}

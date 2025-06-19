@@ -13,17 +13,17 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar, isMobile }) =>
   
   // Calculate width based on state
   const width = isOpen 
-    ? (isMobile ? '14rem' : '16rem') 
+    ? (isMobile ? '12rem' : '14rem') 
     : '4rem';
   
   // On mobile, hide sidebar when closed
   const display = isMobile && !isOpen ? 'translateX(-100%)' : 'translateX(0)';
   
-  // Handle navigation and collapse sidebar on mobile
+  // Handle navigation and collapse sidebar if open
   const handleNavigation = (path: string) => {
     navigate(path);
-    if (isMobile) {
-      toggleSidebar();
+    if (isOpen) {
+      toggleSidebar(); // Only close sidebar if it's open
     }
   };
   

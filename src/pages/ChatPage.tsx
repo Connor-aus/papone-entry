@@ -17,9 +17,9 @@ const ChatPage: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-full relative">
+    <div className="flex flex-col h-full">
       {/* Chat messages area with padding at the bottom for the input */}
-      <div className="flex-1 overflow-y-auto p-4 pb-32">
+      <div className="flex-1 overflow-y-auto p-4 pb-20">
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center text-gray-400">
             <h2 className="text-2xl font-medium mb-2">Welcome</h2>

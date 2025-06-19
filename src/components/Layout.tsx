@@ -4,7 +4,7 @@ import Header from './Header';
 import Sidebar from './Sidebar';
 
 const Layout: React.FC = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   
   // Check if the device is mobile
@@ -15,11 +15,6 @@ const Layout: React.FC = () => {
     
     // Initial check
     checkMobile();
-    
-    // Set sidebar closed by default on mobile
-    if (window.innerWidth < 768) {
-      setSidebarOpen(false);
-    }
     
     // Add resize listener
     window.addEventListener('resize', checkMobile);
@@ -33,15 +28,15 @@ const Layout: React.FC = () => {
   // Calculate sidebar width based on state
   const sidebarWidth = isMobile 
     ? '0' // No margin on mobile, sidebar will overlay
-    : (sidebarOpen ? '16rem' : '4rem');
+    : (sidebarOpen ? '14rem' : '4rem');
 
   return (
-    <div className={`flex ${isMobile ? 'min-h-screen' : 'h-screen'} bg-[#202123]`}>
+    <div className="flex h-screen bg-[#202123] overflow-hidden">
       <Sidebar isOpen={sidebarOpen} toggleSidebar={toggleSidebar} isMobile={isMobile} />
       
       {/* Main content area with dynamic left padding based on sidebar state */}
       <div 
-        className="flex flex-col flex-1 overflow-hidden"
+        className="flex flex-col flex-1"
         style={{ 
           marginLeft: sidebarWidth,
           width: isMobile ? '100%' : `calc(100% - ${sidebarWidth})`,
