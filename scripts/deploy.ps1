@@ -1,9 +1,24 @@
+# Load environment variables from .env file manually
+Get-Content .env | ForEach-Object {
+    if ($_ -match '^\s*([^#][^=]*)\s*=\s*(.*)\s*$') {
+        $name = $matches[1].Trim()
+        $value = $matches[2].Trim('"').Trim()
+        [System.Environment]::SetEnvironmentVariable($name, $value, "Process")
+    }
+}
+
 # Load env vars from .env
 $bucket = $env:S3_BUCKET_NAME
 $region = $env:AWS_REGION_DEPLOYMENT
 $domainName = $env:DOMAIN_NAME
 $certArn = $env:ACM_CERT_ARN  # This must be in us-east-1
 $accountId = $env:AWS_ACCOUNT_ID
+
+Write-Host "Bucket name: $bucket"
+Write-Host "Region: $region"
+Write-Host "Domain name: $domainName"
+Write-Host "Cert ARN: $certArn"
+Write-Host "Account ID: $accountId"
 
 # 1. Build app
 npm install

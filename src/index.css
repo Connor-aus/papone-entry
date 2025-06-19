@@ -17,8 +17,41 @@ code {
     monospace;
 }
 
-/* Fix for scrolling issues */
+/* Base layout */
 html, body, #root {
   height: 100%;
-  overflow: hidden;
+}
+
+/* Fix for mobile viewport height */
+@media (max-width: 767px) {
+  html, body, #root {
+    height: auto;
+    min-height: 100%;
+    overflow-y: auto;
+  }
+  
+  body {
+    position: relative;
+    min-height: 100vh;
+    /* Use fallback for iOS */
+    min-height: -webkit-fill-available;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #202123;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #444654;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }

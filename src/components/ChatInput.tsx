@@ -111,7 +111,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto relative">
+    <div className="w-full relative">
       <form onSubmit={handleSubmit} className="flex items-center">
         <div className="flex-grow relative">
           <textarea
@@ -125,7 +125,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
             disabled={isLoading}
           />
           
-          <div className="absolute right-12 bottom-2.5" ref={helpRef}>
+          <div className="absolute right-12 bottom-2.5 z-10" ref={helpRef}>
             <button
               type="button"
               onClick={() => setShowHelp(!showHelp)}
@@ -138,7 +138,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
             </button>
             
             {showHelp && (
-              <div className="absolute bottom-full right-0 mb-2 w-48 bg-[#202123] rounded-lg shadow-lg border border-gray-700 overflow-hidden">
+              <div className="absolute bottom-full right-0 mb-2 w-48 bg-[#202123] rounded-lg shadow-lg border border-gray-700 overflow-hidden z-30">
                 <div className="p-2 text-sm text-gray-300 border-b border-gray-700">
                   Quick options
                 </div>
@@ -161,7 +161,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
           <button
             type="submit"
             disabled={!message.trim() || isLoading}
-            className={`absolute right-3 bottom-2.5 rounded-md p-1 ${
+            className={`absolute right-3 bottom-2.5 z-10 ${
               !message.trim() || isLoading 
                 ? 'text-gray-500 cursor-not-allowed' 
                 : 'text-gray-400 hover:text-white'

@@ -5,7 +5,7 @@ import logger from '../utils/logger';
 const API_BASE_URL = process.env.REACT_APP_API_URL || '';
 const API_KEY = process.env.REACT_APP_API_KEY || '';
 
-console.log('API_BASE_URL', API_BASE_URL);
+logger.info('API_BASE_URL', API_BASE_URL);
 
 // Create axios instance with common configuration
 const apiClient = axios.create({
