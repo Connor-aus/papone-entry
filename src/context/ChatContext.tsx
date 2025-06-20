@@ -64,10 +64,41 @@ export const ChatProvider: React.FC<ChatProviderProps> = ({ children }) => {
     } catch (error) {
       logger.error('Error sending message to agent', error);
       
+      // Check if it's a 429 (rate limit) error
+      let errorText = 'Sorry, there was an error processing your request. Please try again later.';
+      
+      if (error && typeof error === 'object') {
+        const axiosError = error as any;
+        // Check for direct 429 response
+        if (axiosError.response?.status === 429) {
+          errorText = 'Sorry, the agent quota has been reached for the day. You can still use the Contact page to contact Connor. Otherwise, you can try again tomorrow.';
+        }
+        // Check for network error that might be a masked 429 (common with rate limiting)
+        else if (axiosError.code === 'ERR_NETWORK' && axiosError.name === 'AxiosError') {
+          // Network errors from rate limiting often appear as generic network errors
+          // We'll assume this is likely a quota issue based on the context
+          errorText = 'Sorry, the agent quota has been reached for the day. You can still use the Contact page to contact Connor. Otherwise, you can try again tomorrow.';
+        }
+      }
+      
+      if (error && typeof error === 'object') {
+        const axiosError = error as any;
+        // Check for direct 429 response
+        if (axiosError.response?.status === 429) {
+          errorText = 'Sorry, the agent quota has been reached for the day. You can still use the Contact page to contact Connor. Otherwise, you can try again tomorrow.';
+        }
+        // Check for network error that might be a masked 429 (common with rate limiting)
+        else if (axiosError.code === 'ERR_NETWORK' && axiosError.name === 'AxiosError') {
+          // Network errors from rate limiting often appear as generic network errors
+          // We'll assume this is likely a quota issue based on the context
+          errorText = 'Sorry, the agent quota has been reached for the day. You can still use the Contact page to contact Connor. Otherwise, you can try again tomorrow.';
+        }
+      }
+      
       // Add error message to chat
       const errorMessage: Message = {
         id: `error-${Date.now()}`,
-        text: 'Sorry, there was an error processing your request. Please try again later.',
+        text: errorText,
         isUser: false,
         timestamp: new Date(),
       };
