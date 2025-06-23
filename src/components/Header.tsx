@@ -27,7 +27,7 @@ const Header: React.FC<HeaderProps> = ({ sidebarOpen, toggleSidebar, isMobile })
             )}
           </button>
         )}
-        <div className="text-xl font-medium text-white truncate">Connor's Assistant</div>
+        <div className="text-xl font-medium text-white truncate">Connor's Assistant (POC)</div>
       </div>
     </header>
   );

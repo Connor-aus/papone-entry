@@ -28,10 +28,10 @@ const EXPERIENCE_MESSAGE = `Does Connor have experience working with AWS?`;
 const CONTACT_MESSAGE = `Can you let Connor know that I would like him to contact me at example@example.com?`;
 
 const HELP_OPTIONS = [
-  { id: 'hi', filler: 'Say hi', text: HELLO_MESSAGE },
+  { id: 'hi', filler: 'Say Hi', text: HELLO_MESSAGE },
   { id: 'contact', filler: 'Contact Connor', text: CONTACT_MESSAGE },
-  { id: 'experience', filler: 'Experience question', text: EXPERIENCE_MESSAGE },
-  { id: 'job', filler: 'Job description', text: JOB_DESCRIPTION },
+  { id: 'experience', filler: 'Example Experience Q', text: EXPERIENCE_MESSAGE },
+  { id: 'job', filler: 'Example Job Description', text: JOB_DESCRIPTION },
 ];
 
 const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
